@@ -2,12 +2,18 @@ Parameters:
   SNSTopicName:
     Type: String
     Default: beauty
+  AlarmSNSTopicName:
+    Type: String
+    Default: SNSAlarm
   MyQName:
     Type: String
     Default: my-queue
   MyDLQName:
     Type: String
     Default: my-dl-queue
+  SNSAlarmName:
+    Type: String
+    Default: sns-publish-message-failed
 
 Resources:
   LambdaFunction:
@@ -112,3 +118,29 @@ Resources:
       Targets:
         - Arn: !Ref MySNSTopic
           Id: 1
+
+  AlarmSNSTopic:
+    Type: AWS::SNS::Topic
+    Properties:
+      Subscription:
+        - Endpoint: jing.sun@rea-group.com
+          Protocol: email
+      TopicName: !Ref AlarmSNSTopicName
+
+  SNSAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmDescription: SNS failed
+      AlarmName: !Ref AlarmSNSTopicName
+      AlarmActions:
+        - !Ref AlarmSNSTopic
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      Threshold: 1
+      EvaluationPeriods: 1
+      Statistic: Average
+      MetricName: NumberOfNotificationsFailed
+      Namespace: SNS
+      Period: 300
+      Dimensions:
+        - Name: TopicName
+          Value: beauty
