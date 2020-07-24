@@ -104,6 +104,21 @@ Resources:
           Endpoint: jing.sun@rea-group.com
           Protocol: email
 
+  MySNSTopicPolicy:
+    Type: AWS::SNS::TopicPolicy
+    Properties:
+      PolicyDocument:
+        Id: MySNSTopicPolicy
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: "events.amazonaws.com"
+            Action: sns:Publish
+            Resource: !Ref MySNSTopic
+      Topics:
+        - !Ref MySNSTopic
+
   MyEventSourceMapping:
     Type: AWS::Lambda::EventSourceMapping
     Properties:
